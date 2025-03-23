@@ -120,6 +120,19 @@ class SnippetController extends Controller
         ]);
     }
 
+    public function permanentDeleteSnippet($id)
+    {
+        $user_id = request()->user()->id;
+
+        $snippet = Snippet::where('user_id', $user_id)->firstOrFail($id);
+
+        $snippet->delete();
+
+        return response()->json([
+            'message' => 'Snippet permanently deleted'
+        ]);
+    }
+
     public function searchSnippet(Request $request)
     {
         $request->validate([
@@ -147,6 +160,44 @@ class SnippetController extends Controller
         return response()->json([
             'message' => true,
             'data' => $snippets
+        ]);
+    }
+
+    public function toggleFavourite($id)
+    {
+        $user_id = request()->user()->id;
+
+        $snippet = Snippet::where('user_id', $user_id)->firstOrFail($id);
+
+        // toggle the favourite value 
+        $snippet->update(['is_favourite' => !$snippet->is_favourite]);
+
+        return response()->json([
+            'message' => $snippet->is_favourite ?
+                'Snippet marked as favourite' :
+                'Snippet removed from favourites'
+        ]);
+    }
+
+    public function displayFavourites(Request $request)
+    {
+        $user_id = request()->user()->id;
+
+        $snippets = Snippet::where('user_id', $user_id)
+            ->where('is_favourite', true)
+            ->get();
+
+        return response()->json([
+            'snippets' => $snippets
+        ]);
+    }
+
+    public function getTags()
+    {
+        $tags = Tag::all();
+
+        return response()->json([
+            'tags' => $tags
         ]);
     }
 }
