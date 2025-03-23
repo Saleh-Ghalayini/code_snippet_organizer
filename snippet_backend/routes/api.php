@@ -9,13 +9,11 @@ Route::group(['prefix' => 'v0.1'], function () {
     // Authenticated Routes
     Route::group(['middleware' => 'auth:api'], function () {
 
-        Route::group(["prefix" => "user"], function () {
-            // User APIs go here
-        });
+        // User APIs go here
+        Route::group(["prefix" => "user"], function () {});
 
-        Route::group(["prefix" => "admin", "middleware" => "isAdmin"], function () {
-            // Admin APIs go here
-        });
+        // Admin APIs go here
+        Route::group(["prefix" => "admin", "middleware" => "isAdmin"], function () {});
     });
 
     Route::group(["prefix" => "guest"], function () {
