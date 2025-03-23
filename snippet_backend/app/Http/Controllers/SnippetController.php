@@ -11,7 +11,7 @@ class SnippetController extends Controller
     public function displayAll()
     {
         // Getting all snippets with the tags of each one
-        $snippets = Snippet::with('tags')->paginate(10);
+        $snippets = Snippet::where('is_deleted', false)->with('tags')->paginate(10);
 
         return response()->json([
             'message' => true,
@@ -24,13 +24,15 @@ class SnippetController extends Controller
         $request->validate([
             'code' => 'required|string',
             'language' => 'required|string',
-            'tags' => 'array'
+            'tags' => 'array',
+            'is_favourite' => 'boolean'
         ]);
 
         $snippet = Snippet::create([
             'user_id' => $request->user_id,
             'code' => $request->code,
-            'language' => $request->language
+            'language' => $request->language,
+            'is_favourite' => $request->is_favourite ?? false,
         ]);
 
         if ($request->has('tags')) {
@@ -46,6 +48,48 @@ class SnippetController extends Controller
 
         return response()->json([
             'message' => 'Snippet and tags added successfully'
+        ]);
+    }
+
+    public function updateSnippet(Request $request, $id)
+    {
+        $request->validate([
+            'code' => 'required|string',
+            'language' => 'required|string',
+            'tags' => 'array',
+            'is_favourite' => 'boolean'
+        ]);
+
+        $snippet = Snippet::findOrFail($id);
+
+        $snippet->update([
+            'code' => $request->code,
+            'language' => $request->lagnuage,
+            'is_favourite' => $request->is_favourite ?? $snippet->is_favourite,
+        ]);
+
+        if ($request->has('tags')) {
+            $tags = collect($request->tags)->map(function ($tagName) {
+                return Tag::firstOrCreate(['name' => $tagName]);
+            });
+        }
+
+        $snippet->tags()->sync($tags->pluck('id')->toArray());
+
+        return response()->json([
+            'message' => 'Snippet and tags updated successfully'
+        ]);
+    }
+
+    public function deleteSnippet($id)
+    {
+
+        $snippet = Snippet::findOrFail($id);
+
+        $snippet->update(['is_deleted' => true]);
+
+        return response()->json([
+            'message' => 'Snippet marked as deleted successfully'
         ]);
     }
 }
