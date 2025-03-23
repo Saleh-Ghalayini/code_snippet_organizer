@@ -92,4 +92,15 @@ class SnippetController extends Controller
             'message' => 'Snippet marked as deleted successfully'
         ]);
     }
+
+    public function restoreSnippet($id)
+    {
+        $snippet = Snippet::where('id', $id)->where('is_deleted', true)->firstOrFail();
+
+        $snippet->update(['is_deleted' => false]);
+
+        return response()->json([
+            'message' => 'Snippet restored successfully'
+        ]);
+    }
 }
