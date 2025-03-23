@@ -120,9 +120,9 @@ class SnippetController extends Controller
         ]);
     }
 
-    public function permanentDeleteSnippet($id)
+    public function permanentDeleteSnippet(Request $request, $id)
     {
-        $user_id = request()->user()->id;
+        $user_id = $request->user()->id;
 
         $snippet = Snippet::where('user_id', $user_id)->firstOrFail($id);
 
@@ -163,9 +163,9 @@ class SnippetController extends Controller
         ]);
     }
 
-    public function toggleFavourite($id)
+    public function toggleFavourite(Request $request, $id)
     {
-        $user_id = request()->user()->id;
+        $user_id = $request->user()->id;
 
         $snippet = Snippet::where('user_id', $user_id)->firstOrFail($id);
 
@@ -181,7 +181,7 @@ class SnippetController extends Controller
 
     public function displayFavourites(Request $request)
     {
-        $user_id = request()->user()->id;
+        $user_id = $request->user()->id;
 
         $snippets = Snippet::where('user_id', $user_id)
             ->where('is_favourite', true)
