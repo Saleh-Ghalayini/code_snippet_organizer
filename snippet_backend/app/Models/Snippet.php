@@ -13,7 +13,8 @@ class Snippet extends Model
         'user_id',
         'code',
         'language',
-        'is_favourite'
+        'is_favourite',
+        'is_deleted'
     ];
 
     public function user()
