@@ -26,15 +26,20 @@ class SnippetController extends Controller
 
     public function addSnippet(Request $request)
     {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
         $request->validate([
             'code' => 'required|string',
             'language' => 'required|string',
             'tags' => 'array',
-            'is_favourite' => 'boolean'
+            'is_favourite' => 'boolean',
         ]);
 
-        // Get the authenticated user's ID
-        $user_id = $request->user()->id;
+        $user_id = $user->id;
 
         // Create the snippet and associate it with the user
         $snippet = Snippet::create([
@@ -45,16 +50,18 @@ class SnippetController extends Controller
         ]);
 
         // Add tags if provided
-        if ($request->has('tags')) {
+        if ($request->has('tags') && is_array($request->tags)) {
             $tags = collect($request->tags)->map(function ($tagName) {
                 return Tag::firstOrCreate(['name' => $tagName]);
             });
 
+            // Attach the tags to the snippet
             $snippet->tags()->attach($tags->pluck('id')->toArray());
         }
 
         return response()->json([
-            'message' => 'Snippet and tags added successfully'
+            'message' => 'Snippet and tags added successfully',
+            'snippet' => $snippet
         ]);
     }
 
@@ -120,9 +127,9 @@ class SnippetController extends Controller
         ]);
     }
 
-    public function permanentDeleteSnippet($id)
+    public function permanentDeleteSnippet(Request $request, $id)
     {
-        $user_id = request()->user()->id;
+        $user_id = $request->user()->id;
 
         $snippet = Snippet::where('user_id', $user_id)->firstOrFail($id);
 
@@ -163,9 +170,9 @@ class SnippetController extends Controller
         ]);
     }
 
-    public function toggleFavourite($id)
+    public function toggleFavourite(Request $request, $id)
     {
-        $user_id = request()->user()->id;
+        $user_id = $request->user()->id;
 
         $snippet = Snippet::where('user_id', $user_id)->firstOrFail($id);
 
@@ -181,7 +188,7 @@ class SnippetController extends Controller
 
     public function displayFavourites(Request $request)
     {
-        $user_id = request()->user()->id;
+        $user_id = $request->user()->id;
 
         $snippets = Snippet::where('user_id', $user_id)
             ->where('is_favourite', true)
