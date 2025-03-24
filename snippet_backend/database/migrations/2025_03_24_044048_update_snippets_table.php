@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('snippets', function (Blueprint $table) {
-            $table->boolean('is_deleted')->default(false);
+            $table->renameColumn('is_favorite', 'is_favourite');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('snippets', function (Blueprint $table) {
-            $table->dropColumn('is_deleted');
+            $table->renameColumn('is_favourite', 'is_favorite');
         });
     }
 };

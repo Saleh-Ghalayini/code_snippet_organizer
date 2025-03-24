@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SnippetController;
+use App\Http\Middleware\EnsureIsUser;
 
 Route::group(["prefix" => "v0.1"], function () {
 
@@ -10,7 +11,7 @@ Route::group(["prefix" => "v0.1"], function () {
     Route::group(["middleware" => "auth:api"], function () {
 
         // User APIs go here
-        Route::group(["prefix" => "user", "middleware" => "EnsureIsUser"], function () {
+        Route::group(["prefix" => "user"], function () {
             Route::get('/tags', [SnippetController::class, 'getTags'])->name('snippets.getTag');
             Route::post("/snippets", [SnippetController::class, "addSnippet"])->name('snippets.add');
             Route::get("/snippets", [SnippetController::class, "displayAll"])->name('snippets.displayAll');
